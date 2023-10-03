@@ -7,39 +7,52 @@ import paddle
 import paddle.nn as nn
 import paddle.nn.functional as F
 
+"""
+from paddlenlp.transformers import UIE
+
+tmp = UIE.from_pretrained("uie-mini")
+
+breakpoint()
+"""
+
 
 @dataclass
-class RecConfig:
+class MLPConfig:
     fc_features_sizes: List[int] = field(default_factory=lambda: [512, 768, 768, 512])
     fc_in_features: int = field(
         default=768,
         metadata={"help": "Number of fully connected layer"},
     )
-
-    do_train: bool = field(default=False, metadata={"help": "Whether to run training."})
-    do_eval: bool = field(default=False, metadata={"help": "Whether to run eval on the dev set."})
-    do_predict: bool = field(default=False, metadata={"help": "Whether to run predictions on the test set."})
-    do_export: bool = field(default=False, metadata={"help": "Whether to export infernece model."})
+    dropout_rate: float = field(
+        default=0.2,
+        metadata={"help": "Dropout rate of fully connected layer"},
+    )
 
 
 class MLP(nn.Layer):
     def __init__(self, config, name_scope=None, dtype="float32"):
         super().__init__(name_scope, dtype)
         self.fc_layers = []
-        act = F.ReLU()
+        act = nn.ReLU()
+        dropout_layer = nn.Dropout(p=config.dropout_rate)
 
         for i in range(len(config.fc_features_sizes) - 1):
-            linear = paddle.nn.Linear(
+            linear = nn.Linear(
                 in_features=config.fc_features_sizes[i],
                 out_features=config.fc_features_sizes[i + 1],
                 weight_attr=paddle.ParamAttr(
                     initializer=paddle.nn.initializer.Normal(std=1.0 / math.sqrt(config.fc_features_sizes[i]))
                 ),
             )
-            self.add_sublayer(f"linear_{i}")
+            layer_norm = nn.LayerNorm(config.fc_features_sizes[i + 1])
+            self.add_sublayer(f"linear_{i}", linear)
             self.fc_layers.append(linear)
-            self.add_sublayer(f"activation_{i}")
+            self.add_sublayer(f"activation_{i}", act)
             self.fc_layers.append(act)
+            self.add_sublayer(f"layer_norm_{i}", layer_norm)
+            self.fc_layers.append(layer_norm)
+            self.add_sublayer(f"dropout_{i}", dropout_layer)
+            self.fc_layers.append(dropout_layer)
 
     def forward(self, inputs: List[float]) -> List[float]:
         for fc in self.fc_layers:
@@ -51,10 +64,16 @@ class TwoTower(nn.Layer):
     def __init__(self, config, name_scope=None, dtype="float32"):
         super().__init__(name_scope, dtype)
         self.forward = self.infer_forward
+        self.lossfun = F.cosine_similarity
 
-        # TODO user tower
+        # TODO fix config: features extraction
+        self.user_tower = self.create_model()
+        self.item_tower = self.create_model()
 
-        # TODO item tower
+    def create_model(self):
+        model_config = MLPConfig()
+        mlp = MLP(model_config)
+        return mlp
 
     def train(self):
         super().train()
@@ -64,22 +83,23 @@ class TwoTower(nn.Layer):
         super().eval()
         self.forward = self.infer_forward
 
-    def train_forward(self):
-        pass
+    def train_forward(self, user_inputs: List[float], item_inputs: List[float]):
+        user_embed = self.user_tower(user_inputs)
+        item_embed = self.item_tower(item_inputs)
 
-    def infer_forward(self):
+        self.lossfun(user_embed, item_embed, axis=1).reshape([-1, 1])
+
+    def infer_forward(self, inputs: List[float]):
         pass
 
 
 if __name__ == "__main__":
-    breakpoint()
-    my_config = RecConfig()
+    my_config = MLPConfig()
     my_mlp = MLP(my_config)
-    people = 50
+    people = 10000
     variables = 512
-    breakpoint()
     features = np.random.rand(people, variables)
-    breakpoint()
+    features = paddle.to_tensor(features, dtype="float32")
     s = my_mlp(features)
     print(s)
     breakpoint()

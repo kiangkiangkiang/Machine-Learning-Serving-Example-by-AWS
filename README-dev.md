@@ -61,6 +61,10 @@ Serving 時，
 sh get_data.sh
 ```
 
+```Shell
+pip install git+https://github.com/PaddlePaddle/PaddleRec.git
+```
+
 ```python
 python -m rec-sys
 

@@ -64,7 +64,7 @@ class TwoTower(nn.Layer):
     def __init__(self, config, name_scope=None, dtype="float32"):
         super().__init__(name_scope, dtype)
         self.forward = self.infer_forward
-        self.lossfun = F.cosine_similarity
+        self.prediction = F.cosine_similarity
 
         # TODO fix config: features extraction
         self.user_tower = self.create_model()
@@ -87,19 +87,28 @@ class TwoTower(nn.Layer):
         user_embed = self.user_tower(user_inputs)
         item_embed = self.item_tower(item_inputs)
 
-        self.lossfun(user_embed, item_embed, axis=1).reshape([-1, 1])
+        p = self.prediction(user_embed, item_embed, axis=1).reshape([-1, 1])
+        return p
 
-    def infer_forward(self, inputs: List[float]):
-        pass
+    def infer_forward(self, user_inputs: List[float]):
+        user_embed = self.user_tower(user_inputs)
+        return user_embed
 
 
 if __name__ == "__main__":
     my_config = MLPConfig()
     my_mlp = MLP(my_config)
-    people = 10000
+    people = 64
     variables = 512
+    item = 64
+    item_var = 512
     features = np.random.rand(people, variables)
+    item_features = np.random.rand(item, item_var)
     features = paddle.to_tensor(features, dtype="float32")
-    s = my_mlp(features)
+    item_features = paddle.to_tensor(item_features, dtype="float32")
+    # s = my_mlp(features)
+    t = TwoTower(config=-1)
+    t.train()
+    s = t(features, item_features)
     print(s)
     breakpoint()

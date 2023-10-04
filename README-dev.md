@@ -69,3 +69,23 @@ pip install git+https://github.com/PaddlePaddle/PaddleRec.git
 python -m rec-sys
 
 ```
+
+
+
+# 作法
+- 把所有變數都 hash （不管連續或離散）
+- if 一個欄位可存在多標籤時：找到最多標籤的那個，例如第 37 個 obs 擁有最多標籤 7 個，其他可能只有 2, 3 個，就 default 增加到 7 個欄位，有類別的就用編碼存，沒類別就存 0。
+
+1. 把所有變數全都編碼，可以 one-hot 或是 hash
+2. 定義 user 屬性類別， items 屬性類別，例如 性別, 年齡屬於同一個屬性，價錢, 評分是同一個屬性，user, item 分成兩個 array 存
+3. 每個 list 內的子 list 代表各自屬性，例如 user[0]代表性別年齡（batch_size, 2），user[1]代表 ID居住地身高體重（batch_size, 4）
+4. 定義 開頭 embedding size，有 k 個屬性類別，embedding size = k * default_embedding_size
+5. 先過 Embedding，同樣屬性的可以用 sum or average 壓成同樣維度，例如過 user[0] Embedding大小變成（batch_size, 2, default_embedding_size），則 axis 1 就 sum 起來，保持最後為度都是（batch_size, default_embedding_size）
+6. 最後 user, item 個別 concat
+7. 過 MLP，第 4 點已經定義了開頭 embedding size，因此第一層 MLP一定是（開頭 embedding size, 後續的 embedding size）
+8. user, item 都過後就 cos. sim
+9. 
+
+
+
+

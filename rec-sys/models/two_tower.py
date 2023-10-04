@@ -75,14 +75,6 @@ class TwoTower(nn.Layer):
         mlp = MLP(model_config)
         return mlp
 
-    def train(self):
-        super().train()
-        self.forward = self.train_forward
-
-    def eval(self):
-        super().eval()
-        self.forward = self.infer_forward
-
     def train_forward(self, user_inputs: List[float], item_inputs: List[float]):
         user_embed = self.user_tower(user_inputs)
         item_embed = self.item_tower(item_inputs)

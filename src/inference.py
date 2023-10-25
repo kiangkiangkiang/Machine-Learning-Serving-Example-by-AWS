@@ -1,54 +1,47 @@
 import json
 import os
 import re
-from typing import Callable, List
 
-from base_config import (
-    InferenceDataArguments,
-    InferenceStrategyArguments,
-    InferenceTaskflowArguments,
-    Processer,
-    entity_type,
-    logger,
-    regularized_token,
-)
+from base_config import entity_type
 from paddlenlp import Taskflow
-from paddlenlp.trainer import PdArgumentParser
-from tqdm import tqdm
 
 
 # 必須包含的方法
 ## 1. 載入參數：load checkpoints with fixed-name function called 'model_fn'
 def model_fn(model_dir: str):
     print("hahaha: in model_fn")
+    print("model_dir: ", model_dir)
+    task_path = os.path.join(model_dir, "model_best")
+
     model = Taskflow(
         "information_extraction",
         schema=entity_type,
-        task_path=model_dir,
+        task_path=task_path,
         precision="fp32",
     )
+    print("model: ", model)
     return model
 
 
 ## 2. input 前處理
 def input_fn(request_body, request_content_type):
     assert request_content_type == "application/json"
-    retult = []
+    result = []
     print("hahaha: in input_fun")
-    print(request_body)
+    print("request_body: ", request_body)
     data = json.loads(request_body)["inputs"]
-    print(data)
-    for text in data:
-        for re_term in [r"\n", r" ", r"\u3000", r"\\n"]:
-            text = re.sub(re_term, "", text)
-        retult.append(text)
-    return retult
+    print("data: ", data)
+
+    return data
 
 
 ## 3. 過模型
 def predict_fn(input_object, model):
     print("hahaha in predict_fn")
-    return model(input_object)
+    print("input_object: ", input_object)
+    predict_result = model(input_object)
+    print("predict_result: ", predict_result)
+    return predict_result
 
 
 ## 4. 後處理

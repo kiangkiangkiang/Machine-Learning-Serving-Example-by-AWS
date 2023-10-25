@@ -1,0 +1,4 @@
+paddlenlp
+paddlepaddle-gpu
+nvgpu
+pynvml

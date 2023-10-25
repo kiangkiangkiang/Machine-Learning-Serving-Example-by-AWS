@@ -1,12 +1,12 @@
-#### 目標
-1. 找合適推薦系統的 Dataset (Tabular)
-2. 訓練一個推薦系統模型 (連動 S3，自己建一些資料庫)
-3. 想一下要怎麼做到CI/CD
-4. 想辦法包成 container 部署上去
-5. 想一下要有幾個端點 幾個計算機器
-6. 想一下要怎麼做 load balancer
-7. 設計一些 function 
-   1. 一次訓練當日全部資料（Sample 機制）
-   2. 一次訓練部分資料然後部署
-   3. 推論
-  測試
+
+## Inference Deploy
+
+
+Inference 在部署時主要涵蓋四個項目：
+1. 
+
+
+
+# 參考
+1. https://sagemaker-examples.readthedocs.io/en/latest/frameworks/pytorch/get_started_mnist_deploy.html
+2. https://www.youtube.com/watch?v=YQyid2uLOvI

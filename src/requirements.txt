@@ -1,4 +1,2 @@
+paddlepaddle==2.4.2 
 paddlenlp
-paddlepaddle-gpu
-nvgpu
-pynvml

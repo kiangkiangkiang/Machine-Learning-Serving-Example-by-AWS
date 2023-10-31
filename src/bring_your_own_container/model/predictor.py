@@ -102,11 +102,12 @@ def my_invoke_function():
         try:
             model = model_fn("/opt/program/")
 
-            data = input_fn(data, content_type="application/json")
+            data = input_fn(data, request_content_type="application/json")
             result = predict_fn(data, model)
             result_json = output_fn(result, content_type="application/json")
         except Exception as e:
             result_json = {"error": str(e)}
             print("CustomizeMsg: ", str(e))
+        print(result_json)
 
         return flask.Response(response=result_json, status=200, mimetype="application/json")

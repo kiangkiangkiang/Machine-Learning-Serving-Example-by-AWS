@@ -1,5 +1,13 @@
 import json
 import os
+
+try:
+    os.system("export LD_LIBRARY_PATH=/opt/conda/lib")
+    os.system("ls /usr/lib |grep lib")
+
+except Exception as e:
+    print("Customization: " + str(e))
+
 import re
 
 from base_config import entity_type
@@ -27,7 +35,10 @@ def input_fn(request_body, request_content_type):
     assert request_content_type == "application/json"
 
     print("request_body: ", request_body)
-    data = json.loads(request_body)["inputs"]
+    try:
+        data = json.loads(request_body)["inputs"]
+    except Exception as e:
+        print("CustomizeMsg: ", str(e))
     print("data: ", data)
 
     return data

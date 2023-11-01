@@ -1,13 +1,28 @@
+# MLOps with AWS Sagemaker
+## 事前設定
+### AWS credentials
 
-## Inference Deploy
+1. 點選 AWS 儀表板首頁右上角（自己的帳號）
+2. 點選 Security credentials
+3. 點選 Create access key (依照自己的需求設定)
+4. 編輯 ~/.aws/credentials 檔案內輸入 (替換成剛剛件好的 key)：
+   ![](./docs/aws_cred.png)
+
+## Inference Deploy (Serving)
+
+### Inference Real-Time Autoscaling
+### Serverless Solution
+
+### Batch Inference Solution
+## Auto-Training Pipeline
+### Training Pipeline
+#### Add Training Trigger with Lambda
+
+### Distributed Training
 
 
-Inference 在部署時主要涵蓋四個項目：
-1. 
 
-
-
-# 參考
+## 參考
 1. Inference 範例：https://sagemaker-examples.readthedocs.io/en/latest/frameworks/pytorch/get_started_mnist_deploy.html
 2. 內建 Image uri：https://docs.aws.amazon.com/zh_tw/sagemaker/latest/dg/notebooks-available-images.html
 3. https://www.youtube.com/watch?v=YQyid2uLOvI
